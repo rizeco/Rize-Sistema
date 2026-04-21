@@ -16,8 +16,16 @@ import { getFirestore, collection, doc, getDocs, getDoc, addDoc, setDoc,
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 /* -----------------------------------------------------------------
-   🔧 CREDENCIAIS FIREBASE
+   🔧 CREDENCIAIS FIREBASE — mesmas da landing page
    ----------------------------------------------------------------- */
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyCy0dxrlthuRpidkv2XEZTlD8fx0RZXiF8",
   authDomain: "system-rize.firebaseapp.com",
@@ -27,6 +35,9 @@ const firebaseConfig = {
   appId: "1:1021973532313:web:884a246199999f659e3208",
   measurementId: "G-E48TEMD2XM"
 };
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 
 /* -----------------------------------------------------------------
    🔧 UIDs DOS ADMINS (copie do Firebase Auth depois de criar as contas)
@@ -40,7 +51,7 @@ const ADMIN_UIDS = [
 /* =============================================================
    INICIALIZAÇÃO
    ============================================================= */
-const fbApp = initializeApp(firebaseConfig);
+const fbApp = initializeApp(FIREBASE_CONFIG);
 const auth  = getAuth(fbApp);
 const db    = getFirestore(fbApp);
 
@@ -456,13 +467,18 @@ window.salvarProduto = async function(existingId) {
     active: true,
   };
   if (!produto.name) { toast('Informe o nome do produto.', 'erro'); return; }
-  if (existingId) {
-    await setDoc(doc(db, 'products', existingId), { ...produto, updatedAt: serverTimestamp() }, { merge: true });
-  } else {
-    await setDoc(doc(db, 'products', produto.id), { ...produto, createdAt: serverTimestamp() });
+  try {
+    if (existingId) {
+      await setDoc(doc(db, 'products', existingId), { ...produto, updatedAt: serverTimestamp() }, { merge: true });
+    } else {
+      await setDoc(doc(db, 'products', produto.id), { ...produto, createdAt: serverTimestamp() });
+    }
+    fecharModal();
+    toast('Produto salvo!', 'sucesso');
+  } catch(e) {
+    console.error('ERRO ao salvar produto:', e);
+    toast('Erro ao salvar: ' + e.message, 'erro');
   }
-  fecharModal();
-  toast('Produto salvo!', 'sucesso');
 };
 
 window.excluirProduto = async function(id) {
