@@ -17,22 +17,23 @@ import { getFirestore, collection, doc, getDocs, getDoc, addDoc, setDoc,
 /* -----------------------------------------------------------------
    🔧 CREDENCIAIS FIREBASE — mesmas da landing page
    ----------------------------------------------------------------- */
-const FIREBASE_CONFIG = {
-  apiKey:            "COLE_AQUI",
-  authDomain:        "COLE_AQUI.firebaseapp.com",
-  projectId:         "COLE_AQUI",
-  storageBucket:     "COLE_AQUI.appspot.com",
-  messagingSenderId: "COLE_AQUI",
-  appId:             "COLE_AQUI",
-};
+const firebaseConfig = {
+    apiKey: "AIzaSyCy0dxrlthuRpidkv2XEZTlD8fx0RZXiF8",
+    authDomain: "system-rize.firebaseapp.com",
+    projectId: "system-rize",
+    storageBucket: "system-rize.firebasestorage.app",
+    messagingSenderId: "1021973532313",
+    appId: "1:1021973532313:web:884a246199999f659e3208",
+    measurementId: "G-E48TEMD2XM"
+  };
 
 /* -----------------------------------------------------------------
    🔧 UIDs DOS ADMINS (copie do Firebase Auth depois de criar as contas)
    Firebase Console → Authentication → Users → copie a coluna "User UID"
    ----------------------------------------------------------------- */
 const ADMIN_UIDS = [
-  "COLE_UID_ADMIN_1",
-  "COLE_UID_ADMIN_2",
+  "lt7G8hhGlYeCGNTkuMSxQrhKPdJ2",
+  "3GDrg2qVGVeg8CU9d5ioFSAMhbc2",
 ];
 
 /* =============================================================
