@@ -16,16 +16,8 @@ import { getFirestore, collection, doc, getDocs, getDoc, addDoc, setDoc,
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 /* -----------------------------------------------------------------
-   🔧 CREDENCIAIS FIREBASE — mesmas da landing page
+   🔧 CREDENCIAIS FIREBASE
    ----------------------------------------------------------------- */
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyCy0dxrlthuRpidkv2XEZTlD8fx0RZXiF8",
   authDomain: "system-rize.firebaseapp.com",
@@ -35,13 +27,9 @@ const firebaseConfig = {
   appId: "1:1021973532313:web:884a246199999f659e3208",
   measurementId: "G-E48TEMD2XM"
 };
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 
 /* -----------------------------------------------------------------
-   🔧 UIDs DOS ADMINS (copie do Firebase Auth depois de criar as contas)
-   Firebase Console → Authentication → Users → copie a coluna "User UID"
+   🔧 UIDs DOS ADMINS
    ----------------------------------------------------------------- */
 const ADMIN_UIDS = [
   "lt7G8hhGlYeCGNTkuMSxQrhKPdJ2",
@@ -51,7 +39,7 @@ const ADMIN_UIDS = [
 /* =============================================================
    INICIALIZAÇÃO
    ============================================================= */
-const fbApp = initializeApp(FIREBASE_CONFIG);
+const fbApp = initializeApp(firebaseConfig);
 const auth  = getAuth(fbApp);
 const db    = getFirestore(fbApp);
 
