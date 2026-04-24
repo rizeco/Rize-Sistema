@@ -65,6 +65,10 @@
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
         Recibos
       </button>
+      <button class="nav-btn" data-view="landing">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+        Landing Page
+      </button>
     </nav>
     <div class="sidebar-rodape">
       <div class="user-chip">
@@ -306,6 +310,165 @@
           </div>
         </div>
         <div id="tabela-recibos" class="tabela-wrap"></div>
+      </div>
+    </section>
+
+
+    <!-- ── LANDING PAGE EDITOR ── -->
+    <section id="view-landing" class="view">
+      <div class="landing-editor">
+
+        <!-- Coluna esquerda: formulários -->
+        <div class="landing-form-col">
+
+          <div class="form-bloco">
+            <div class="form-bloco-titulo">Configurações Gerais</div>
+            <div class="field-grid">
+              <div class="field span-full"><label>Título da página (aba do navegador)</label><input id="lp-titulo" placeholder="RIZE™ — Drop 001"/></div>
+              <div class="field span-full"><label>Headline Hero (linha 1)</label><input id="lp-hero-linha1" placeholder="RIZE."/></div>
+              <div class="field span-full"><label>Headline Hero (linha 2)</label><input id="lp-hero-linha2" placeholder="ALWAYS."/></div>
+              <div class="field span-full"><label>Subtítulo Hero</label><input id="lp-hero-sub" placeholder="Não é roupa. É postura."/></div>
+              <div class="field span-full"><label>Eyebrow Hero</label><input id="lp-hero-eyebrow" placeholder="Drop 001 · In The Wild"/></div>
+            </div>
+          </div>
+
+          <div class="form-bloco">
+            <div class="form-bloco-titulo">The Brand</div>
+            <div class="field-grid">
+              <div class="field span-full"><label>Headline Brand</label><input id="lp-brand-headline" placeholder="Quem sabe, sabe."/></div>
+              <div class="field span-full"><label>Texto 1</label><textarea id="lp-brand-texto1" rows="3" placeholder="A Rize não foi criada pra todo mundo..."></textarea></div>
+              <div class="field span-full"><label>Texto 2</label><textarea id="lp-brand-texto2" rows="2" placeholder="A peça é o ponto de entrada..."></textarea></div>
+            </div>
+          </div>
+
+          <div class="form-bloco">
+            <div class="form-bloco-titulo">Produto 1 — The Eyes Tee Preto</div>
+            <div class="field-grid">
+              <div class="field span-full"><label>Nome do produto</label><input id="lp-p1-nome" placeholder="The Eyes Tee Preto"/></div>
+              <div class="field"><label>Preço (R$)</label><input id="lp-p1-preco" type="number" step="0.01" placeholder="179.90"/></div>
+              <div class="field"><label>Cor / Label</label><input id="lp-p1-cor" placeholder="Preto"/></div>
+              <div class="field span-full"><label>Especificações</label><input id="lp-p1-specs" placeholder="Heavyweight 340g · Oversized · Xerox eye print"/></div>
+              <div class="field span-full"><label>Notice (ex: Drop limitado)</label><input id="lp-p1-notice" placeholder="Drop limitado · Sem reposição · Sem exceções"/></div>
+              <div class="field-grid" style="grid-column:1/-1;grid-template-columns:repeat(4,1fr);gap:8px">
+                <div class="field"><label>Estoque P</label><input id="lp-p1-P" type="number" min="0"/></div>
+                <div class="field"><label>Estoque M</label><input id="lp-p1-M" type="number" min="0"/></div>
+                <div class="field"><label>Estoque G</label><input id="lp-p1-G" type="number" min="0"/></div>
+                <div class="field"><label>Estoque GG</label><input id="lp-p1-GG" type="number" min="0"/></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-bloco">
+            <div class="form-bloco-titulo">Produto 2 — The Eyes Tee Branco</div>
+            <div class="field-grid">
+              <div class="field span-full"><label>Nome do produto</label><input id="lp-p2-nome" placeholder="The Eyes Tee Branco"/></div>
+              <div class="field"><label>Preço (R$)</label><input id="lp-p2-preco" type="number" step="0.01" placeholder="179.90"/></div>
+              <div class="field"><label>Cor / Label</label><input id="lp-p2-cor" placeholder="Branco"/></div>
+              <div class="field span-full"><label>Especificações</label><input id="lp-p2-specs" placeholder="Heavyweight 340g · Oversized · Xerox eye print"/></div>
+              <div class="field span-full"><label>Notice</label><input id="lp-p2-notice" placeholder="Drop limitado · Sem reposição · Sem exceções"/></div>
+              <div class="field-grid" style="grid-column:1/-1;grid-template-columns:repeat(4,1fr);gap:8px">
+                <div class="field"><label>Estoque P</label><input id="lp-p2-P" type="number" min="0"/></div>
+                <div class="field"><label>Estoque M</label><input id="lp-p2-M" type="number" min="0"/></div>
+                <div class="field"><label>Estoque G</label><input id="lp-p2-G" type="number" min="0"/></div>
+                <div class="field"><label>Estoque GG</label><input id="lp-p2-GG" type="number" min="0"/></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-bloco">
+            <div class="form-bloco-titulo">Seção Produtos (título)</div>
+            <div class="field-grid">
+              <div class="field span-full"><label>Eyebrow</label><input id="lp-prod-eyebrow" placeholder="In The Wild"/></div>
+              <div class="field span-full"><label>Headline linha 1</label><input id="lp-prod-h1" placeholder="Duas peças."/></div>
+              <div class="field span-full"><label>Headline linha 2</label><input id="lp-prod-h2" placeholder="Uma postura."/></div>
+            </div>
+          </div>
+
+          <div class="form-bloco">
+            <div class="form-bloco-titulo">Drop Banner</div>
+            <div class="field-grid">
+              <div class="field span-full"><label>Eyebrow</label><input id="lp-banner-eyebrow" placeholder="Drop 001"/></div>
+              <div class="field span-full"><label>Headline</label><input id="lp-banner-headline" placeholder="In The Wild"/></div>
+              <div class="field span-full"><label>Notice</label><input id="lp-banner-notice" placeholder="DROP LIMITADO. SEM REPOSIÇÃO. SEM EXCEÇÕES."/></div>
+              <div class="field span-full"><label>Subtítulo</label><input id="lp-banner-sub" placeholder="Duas peças. Uma postura."/></div>
+            </div>
+          </div>
+
+          <div class="form-bloco">
+            <div class="form-bloco-titulo">VIP Group</div>
+            <div class="field-grid">
+              <div class="field span-full"><label>Headline</label><input id="lp-vip-headline" placeholder="Vip Group"/></div>
+              <div class="field span-full"><label>Link do WhatsApp VIP (número completo)</label><input id="lp-vip-whatsapp" placeholder="5548999999999"/></div>
+              <div class="field span-full"><label>Benefício 1</label><input id="lp-vip-b1" placeholder="Cupons antes de todo mundo."/></div>
+              <div class="field span-full"><label>Benefício 2</label><input id="lp-vip-b2" placeholder="Drops com aviso antecipado."/></div>
+              <div class="field span-full"><label>Benefício 3</label><input id="lp-vip-b3" placeholder="Nada mais. Nada menos."/></div>
+              <div class="field span-full"><label>Disclaimer</label><input id="lp-vip-disclaimer" placeholder="Sem spam. Saída quando quiser."/></div>
+            </div>
+          </div>
+
+          <div class="form-bloco">
+            <div class="form-bloco-titulo">Checkout / WhatsApp de Pedidos</div>
+            <div class="field-grid">
+              <div class="field span-full"><label>Número WhatsApp para receber pedidos</label><input id="lp-checkout-whatsapp" placeholder="5548999999999"/></div>
+              <div class="field span-full"><label>Valor do frete (R$)</label><input id="lp-frete" type="number" step="0.01" placeholder="9.90"/></div>
+            </div>
+          </div>
+
+          <div class="form-bloco">
+            <div class="form-bloco-titulo">Rodapé</div>
+            <div class="field-grid">
+              <div class="field span-full"><label>Texto de copyright</label><input id="lp-footer-copy" placeholder="© 2026 Rize™ Streetwear"/></div>
+              <div class="field span-full"><label>Tagline</label><input id="lp-footer-tagline" placeholder="RIZE. ALWAYS."/></div>
+            </div>
+          </div>
+
+          <div class="form-bloco">
+            <div class="form-bloco-titulo">Marquee (faixa animada)</div>
+            <div class="field-grid">
+              <div class="field span-full"><label>Itens (separados por |)</label><input id="lp-marquee" placeholder="RIZE. ALWAYS.|DROP 001 · IN THE WILD|SEM REPOSIÇÃO|HEAVYWEIGHT 340G"/></div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;padding-bottom:32px">
+            <button class="btn btn-primary" id="btn-salvar-landing">Salvar e Publicar na Landing</button>
+            <button class="btn btn-ghost" id="btn-carregar-landing">Recarregar dados salvos</button>
+          </div>
+
+        </div>
+
+        <!-- Coluna direita: IDs dos produtos para a landing -->
+        <div class="landing-info-col">
+          <div class="form-bloco landing-info-card">
+            <div class="form-bloco-titulo">IDs dos Produtos no Firebase</div>
+            <p style="font-size:12px;color:var(--cinza3);margin-bottom:16px;line-height:1.7">
+              Copie esses IDs e cole no arquivo <code style="background:var(--bg4);padding:2px 6px;font-family:var(--mono);font-size:11px">landing/js/main.js</code>
+              na variável <code style="background:var(--bg4);padding:2px 6px;font-family:var(--mono);font-size:11px">PRODUTO_IDS</code>.
+            </p>
+            <div id="landing-ids-display" style="display:flex;flex-direction:column;gap:10px">
+              <p style="color:var(--cinza5);font-size:12px">Carregando produtos...</p>
+            </div>
+          </div>
+
+          <div class="form-bloco landing-info-card" style="margin-top:0">
+            <div class="form-bloco-titulo">Status da Conexão</div>
+            <div id="landing-status" style="font-size:12px;color:var(--cinza3);line-height:1.8">
+              <div>Produtos no Firestore: <strong id="lp-status-produtos">—</strong></div>
+              <div>Config salva: <strong id="lp-status-config">—</strong></div>
+              <div>Pedidos hoje: <strong id="lp-status-pedidos">—</strong></div>
+            </div>
+          </div>
+
+          <div class="form-bloco landing-info-card" style="margin-top:0">
+            <div class="form-bloco-titulo">Como funciona</div>
+            <ol style="font-size:12px;color:var(--cinza3);line-height:2;padding-left:18px">
+              <li>Edite os campos aqui e clique em "Salvar"</li>
+              <li>A landing page lê os dados do Firebase em tempo real</li>
+              <li>Mudanças aparecem imediatamente no site</li>
+              <li>Estoque também é controlado aqui</li>
+            </ol>
+          </div>
+        </div>
+
       </div>
     </section>
 

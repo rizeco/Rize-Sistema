@@ -66,6 +66,7 @@ function fmtData(ts) {
   return d.toLocaleDateString('pt-BR');
 }
 function toast(msg, tipo = '') {
+  window._toast = toast; // alias for inline onclick
   const t = $('toast');
   t.textContent = msg;
   t.className   = `toast show${tipo ? ' ' + tipo : ''}`;
@@ -85,6 +86,9 @@ document.addEventListener('DOMContentLoaded', () => {
 /* =============================================================
    AUTH
    ============================================================= */
+/* FIX: fecharModal acessível globalmente nos onclick inline */
+window.fecharModal = function() { $('modal').classList.add('hidden'); };
+
 function iniciarAuth() {
   $('btn-entrar').addEventListener('click', async () => {
     const email = $('login-email').value.trim();
@@ -189,7 +193,7 @@ function irPara(nome) {
     b.classList.toggle('ativo', b.dataset.view === nome));
   document.querySelectorAll('.view').forEach(v =>
     v.classList.toggle('ativo', v.id === `view-${nome}`));
-  const titulos = { dashboard: 'Dashboard', pedidos: 'Pedidos', estoque: 'Estoque', financeiro: 'Financeiro', recibos: 'Recibos' };
+  const titulos = { dashboard: 'Dashboard', pedidos: 'Pedidos', estoque: 'Estoque', financeiro: 'Financeiro', recibos: 'Recibos', landing: 'Editor da Landing Page' };
   $('topbar-titulo').textContent = titulos[nome] || nome;
   $('topbar-acoes').innerHTML = '';
 
@@ -198,6 +202,7 @@ function irPara(nome) {
   if (nome === 'estoque')    { renderGridEstoque(); iniciarAcoesEstoque(); }
   if (nome === 'financeiro') { renderFinanceiro(); iniciarAcoesFinanceiro(); }
   if (nome === 'recibos')    { renderSecaoRecibos(); iniciarFormRecibo(); }
+  if (nome === 'landing')    { iniciarEditorLanding(); }
 }
 
 /* =============================================================
@@ -421,6 +426,13 @@ function renderGridEstoque() {
           <button class="btn btn-ghost sm" onclick="modalProduto('${p.id}')">Editar</button>
           <button class="btn btn-perigo sm" onclick="excluirProduto('${p.id}')">Excluir</button>
         </div>
+        <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--borda)">
+          <span style="font-family:var(--dm);font-size:9px;color:var(--cinza5);letter-spacing:0.08em">ID FIREBASE (copie para a landing):</span>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
+            <code style="font-family:var(--mono);font-size:10px;color:var(--branco);flex:1;word-break:break-all">${p.id}</code>
+            <button class="btn btn-ghost sm" onclick="navigator.clipboard.writeText('${p.id}').then(()=>window._toast&&window._toast('ID copiado!','sucesso'))">Copiar</button>
+          </div>
+        </div>
       </div>`;
   }).join('') : '<p style="color:var(--cinza5);grid-column:1/-1;padding:40px;text-align:center">Nenhum produto cadastrado.</p>';
 }
@@ -447,25 +459,33 @@ window.modalProduto = function(id) {
 
 window.salvarProduto = async function(existingId) {
   const produto = {
-    id: existingId || genId(),
-    name:  $('p-nome').value.trim(),
-    color: $('p-cor').value.trim(),
-    price: parseFloat($('p-preco').value) || 0,
-    sizes: { P: +$('p-P').value, M: +$('p-M').value, G: +$('p-G').value, GG: +$('p-GG').value },
+    name:   $('p-nome').value.trim(),
+    color:  $('p-cor').value.trim(),
+    price:  parseFloat($('p-preco').value) || 0,
+    sizes:  {
+      P:  parseInt($('p-sz-P').value)  || 0,
+      M:  parseInt($('p-sz-M').value)  || 0,
+      G:  parseInt($('p-sz-G').value)  || 0,
+      GG: parseInt($('p-sz-GG').value) || 0,
+    },
     active: true,
   };
   if (!produto.name) { toast('Informe o nome do produto.', 'erro'); return; }
+  const btn = document.querySelector('#modal-conteudo .btn-primary');
+  if (btn) { btn.textContent = 'Salvando...'; btn.disabled = true; }
   try {
     if (existingId) {
       await setDoc(doc(db, 'products', existingId), { ...produto, updatedAt: serverTimestamp() }, { merge: true });
     } else {
-      await setDoc(doc(db, 'products', produto.id), { ...produto, createdAt: serverTimestamp() });
+      const ref = await addDoc(collection(db, 'products'), { ...produto, createdAt: serverTimestamp() });
+      console.log('Produto criado, ID:', ref.id);
     }
-    fecharModal();
-    toast('Produto salvo!', 'sucesso');
+    window.fecharModal();
+    toast('Produto salvo! Veja o ID na aba Estoque.', 'sucesso');
   } catch(e) {
     console.error('ERRO ao salvar produto:', e);
     toast('Erro ao salvar: ' + e.message, 'erro');
+    if (btn) { btn.textContent = 'Salvar'; btn.disabled = false; }
   }
 };
 
@@ -557,6 +577,112 @@ window.excluirTx = async function(id) {
   renderFinanceiro();
   toast('Excluído.');
 };
+
+
+/* =============================================================
+   EDITOR DA LANDING PAGE
+   Lê/salva em Firestore: coleção "landing_config" → doc "main"
+   ============================================================= */
+async function iniciarEditorLanding() {
+  renderIDsProdutos();
+  await carregarConfigLanding();
+
+  const btnS = $('btn-salvar-landing');
+  const btnC = $('btn-carregar-landing');
+  if (btnS && !btnS._init) { btnS._init = true; btnS.addEventListener('click', salvarConfigLanding); }
+  if (btnC && !btnC._init) { btnC._init = true; btnC.addEventListener('click', carregarConfigLanding); }
+  atualizarStatusLanding();
+}
+
+function renderIDsProdutos() {
+  const el = $('landing-ids-display');
+  if (!el) return;
+  if (!_produtos.length) {
+    el.innerHTML = '<p style="color:var(--cinza5);font-size:12px">Nenhum produto cadastrado ainda.<br>Vá em <strong>Estoque → + Novo Produto</strong> para cadastrar.</p>';
+    return;
+  }
+  el.innerHTML = _produtos.map(p => `
+    <div style="background:var(--bg3);border:1px solid var(--borda);padding:12px;border-radius:6px">
+      <div style="font-size:12px;font-weight:600;margin-bottom:6px">${p.name || ''} ${p.color || ''}</div>
+      <div style="font-family:var(--dm);font-size:9px;color:var(--cinza5);margin-bottom:4px">ID FIREBASE:</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <code style="font-family:var(--mono);font-size:11px;color:var(--branco);flex:1;word-break:break-all">${p.id}</code>
+        <button class="btn btn-ghost sm" onclick="navigator.clipboard.writeText('${p.id}').then(()=>toast('ID copiado!','sucesso'))">Copiar</button>
+      </div>
+    </div>`).join('');
+}
+
+async function carregarConfigLanding() {
+  try {
+    const snap = await getDoc(doc(db, 'landing_config', 'main'));
+    if (!snap.exists()) { toast('Nenhuma config salva. Preencha e clique em Salvar.'); return; }
+    const c = snap.data();
+    const set = (id, v) => { const el = $(id); if (el && v !== undefined) el.value = v; };
+    set('lp-titulo', c.titulo); set('lp-hero-linha1', c.heroLinha1);
+    set('lp-hero-linha2', c.heroLinha2); set('lp-hero-sub', c.heroSub);
+    set('lp-hero-eyebrow', c.heroEyebrow); set('lp-brand-headline', c.brandHeadline);
+    set('lp-brand-texto1', c.brandTexto1); set('lp-brand-texto2', c.brandTexto2);
+    set('lp-p1-nome', c.p1Nome); set('lp-p1-preco', c.p1Preco);
+    set('lp-p1-cor', c.p1Cor); set('lp-p1-specs', c.p1Specs); set('lp-p1-notice', c.p1Notice);
+    if (c.p1Stock) { set('lp-p1-P', c.p1Stock.P); set('lp-p1-M', c.p1Stock.M); set('lp-p1-G', c.p1Stock.G); set('lp-p1-GG', c.p1Stock.GG); }
+    set('lp-p2-nome', c.p2Nome); set('lp-p2-preco', c.p2Preco);
+    set('lp-p2-cor', c.p2Cor); set('lp-p2-specs', c.p2Specs); set('lp-p2-notice', c.p2Notice);
+    if (c.p2Stock) { set('lp-p2-P', c.p2Stock.P); set('lp-p2-M', c.p2Stock.M); set('lp-p2-G', c.p2Stock.G); set('lp-p2-GG', c.p2Stock.GG); }
+    set('lp-prod-eyebrow', c.prodEyebrow); set('lp-prod-h1', c.prodH1); set('lp-prod-h2', c.prodH2);
+    set('lp-banner-eyebrow', c.bannerEyebrow); set('lp-banner-headline', c.bannerHeadline);
+    set('lp-banner-notice', c.bannerNotice); set('lp-banner-sub', c.bannerSub);
+    set('lp-vip-headline', c.vipHeadline); set('lp-vip-whatsapp', c.vipWhatsapp);
+    set('lp-vip-b1', c.vipB1); set('lp-vip-b2', c.vipB2); set('lp-vip-b3', c.vipB3);
+    set('lp-vip-disclaimer', c.vipDisclaimer);
+    set('lp-checkout-whatsapp', c.checkoutWhatsapp); set('lp-frete', c.frete);
+    set('lp-footer-copy', c.footerCopy); set('lp-footer-tagline', c.footerTagline);
+    set('lp-marquee', c.marqueeItens);
+    toast('Config carregada!', 'sucesso');
+  } catch(e) { console.error(e); toast('Erro ao carregar: ' + e.message, 'erro'); }
+}
+
+async function salvarConfigLanding() {
+  const g = id => $(id)?.value || '';
+  const p1 = _produtos.find(p => (p.color||'').toLowerCase().includes('pret') || (p.name||'').toLowerCase().includes('pret'));
+  const p2 = _produtos.find(p => (p.color||'').toLowerCase().includes('branc') || (p.name||'').toLowerCase().includes('branc'));
+  const config = {
+    titulo: g('lp-titulo'), heroLinha1: g('lp-hero-linha1'), heroLinha2: g('lp-hero-linha2'),
+    heroSub: g('lp-hero-sub'), heroEyebrow: g('lp-hero-eyebrow'),
+    brandHeadline: g('lp-brand-headline'), brandTexto1: g('lp-brand-texto1'), brandTexto2: g('lp-brand-texto2'),
+    p1Nome: g('lp-p1-nome'), p1Preco: parseFloat(g('lp-p1-preco'))||0, p1Cor: g('lp-p1-cor'),
+    p1Specs: g('lp-p1-specs'), p1Notice: g('lp-p1-notice'), p1Id: p1?.id || '',
+    p1Stock: { P: +g('lp-p1-P')||0, M: +g('lp-p1-M')||0, G: +g('lp-p1-G')||0, GG: +g('lp-p1-GG')||0 },
+    p2Nome: g('lp-p2-nome'), p2Preco: parseFloat(g('lp-p2-preco'))||0, p2Cor: g('lp-p2-cor'),
+    p2Specs: g('lp-p2-specs'), p2Notice: g('lp-p2-notice'), p2Id: p2?.id || '',
+    p2Stock: { P: +g('lp-p2-P')||0, M: +g('lp-p2-M')||0, G: +g('lp-p2-G')||0, GG: +g('lp-p2-GG')||0 },
+    prodEyebrow: g('lp-prod-eyebrow'), prodH1: g('lp-prod-h1'), prodH2: g('lp-prod-h2'),
+    bannerEyebrow: g('lp-banner-eyebrow'), bannerHeadline: g('lp-banner-headline'),
+    bannerNotice: g('lp-banner-notice'), bannerSub: g('lp-banner-sub'),
+    vipHeadline: g('lp-vip-headline'), vipWhatsapp: g('lp-vip-whatsapp'),
+    vipB1: g('lp-vip-b1'), vipB2: g('lp-vip-b2'), vipB3: g('lp-vip-b3'),
+    vipDisclaimer: g('lp-vip-disclaimer'), checkoutWhatsapp: g('lp-checkout-whatsapp'),
+    frete: parseFloat(g('lp-frete'))||9.90,
+    footerCopy: g('lp-footer-copy'), footerTagline: g('lp-footer-tagline'),
+    marqueeItens: g('lp-marquee'), updatedAt: serverTimestamp(),
+  };
+  const btn = $('btn-salvar-landing');
+  btn.textContent = 'Salvando...'; btn.disabled = true;
+  try {
+    await setDoc(doc(db, 'landing_config', 'main'), config, { merge: true });
+    if (p1?.id) await setDoc(doc(db, 'products', p1.id), { name: config.p1Nome, color: config.p1Cor, price: config.p1Preco, sizes: config.p1Stock, updatedAt: serverTimestamp() }, { merge: true });
+    if (p2?.id) await setDoc(doc(db, 'products', p2.id), { name: config.p2Nome, color: config.p2Cor, price: config.p2Preco, sizes: config.p2Stock, updatedAt: serverTimestamp() }, { merge: true });
+    toast('Salvo e publicado na landing!', 'sucesso');
+    atualizarStatusLanding();
+  } catch(e) { console.error(e); toast('Erro: ' + e.message, 'erro');
+  } finally { btn.textContent = 'Salvar e Publicar na Landing'; btn.disabled = false; }
+}
+
+function atualizarStatusLanding() {
+  const ep = $('lp-status-produtos'), ed = $('lp-status-pedidos'), ec = $('lp-status-config');
+  if (ep) ep.textContent = _produtos.length + ' produto(s)';
+  if (ed) ed.textContent = _pedidos.filter(p => { const d = p.createdAt?.toDate ? p.createdAt.toDate() : new Date(p.createdAt||0); return d.toISOString().slice(0,10) === hoje(); }).length;
+  if (ec) getDoc(doc(db, 'landing_config', 'main')).then(s => { ec.textContent = s.exists() ? '✓ Configurada' : '✗ Não configurada'; });
+}
 
 /* =============================================================
    RECIBOS
